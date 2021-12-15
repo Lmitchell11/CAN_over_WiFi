@@ -4,12 +4,10 @@
 #endif
 #include <WiFi.h>
 #include <Wire.h>
-#include "Adafruit_TMP006.h"
+#include <BMA222.h>
 
-Adafruit_TMP006 tmp006(0x41);
 WiFiUDP Udp;
-
-
+BMA222 mySensor;
 
 // your network name also called SSID
 char ssid[] = "LiamTest";
@@ -23,13 +21,15 @@ unsigned int localPort = 8000;      // local port to listen on
 
 char packetBuffer[255]; //buffer to hold incoming packet
 char replyBuffer[] = "Starting transmission now";       // a string to send back
-int CAN_Bus_PID_Data = 0;
 
 void setup() {
 
     //Initialize serial and wait for port to open:
     Serial.begin(115200);
     Serial1.begin(115200);
+    mySensor.begin();
+
+    
 
     // attempt to connect to Wifi network:
     Serial.print("Attempting to connect to Network named: ");
@@ -56,11 +56,6 @@ void setup() {
 
     Serial.println("\nWaiting for response from the server...\n");
     Udp.begin(localPort);
-
-    if (! tmp006.begin()) {
-        Serial.println("No sensor found");
-        while (1);
-    }
 }
 
 
@@ -69,7 +64,8 @@ void loop() {
 
     //if there's data available, read a packet
     int packetSize = Udp.parsePacket();
-
+    int8_t data = mySensor.readXData();
+    
     IPAddress ip = WiFi.localIP();
     ip[3] = 255;
 
@@ -101,41 +97,25 @@ void loop() {
     }
 
     if (i != 0) {
-        
-        if (Serial1.available() > 0) {
-            CAN_Bus_PID_Data = Serial1.read();    //Request for CANBUS Data - /* CAN BUS PID DATA for STEERING Taken from OBD2 PORT */
-            CAN_Bus_PID_Data = 60;                                                                        //Default value, keep commented until data can be read into CAN_Bus_PID_Data variable...
 
-            Serial.print(CAN_Bus_PID_Data);                                                               //Print what you're going to send to console (Serial0)
+//        Serial.print("X: ");
+          Serial.println(data);
+      
+//        data = mySensor.readYData();
+//        Serial.print(" Y: ");
+//        Serial.print(data);
+      
+//        data = mySensor.readZData();
+//        Serial.print(" Z: ");
+//        Serial.println(data);
         };
+
         
-        if (Serial1.available() <= 0){
-          CAN_Bus_PID_Data = 20;                                                                          //Default value, keep commented until data can be read into CAN_Bus_PID_Data variable...
-          
-          Serial.print(CAN_Bus_PID_Data);                                                                 //Print what you're going to send to console (Serial0)
-        };
-
-//     char sendBuffer[] = "Insert Message Here";
-
-
-//        float objt = tmp006.readObjTempC();
-//        Serial.print("Object Temperature: "); Serial.print(objt); Serial.println("*C");
-//        float diet = tmp006.readDieTempC();
-//        Serial.print("Die Temperature: "); Serial.print(diet); Serial.println("*C\n");
-
 
         Udp.beginPacket(ip, localPort);
-//      Udp.write(sendBuffer);
-//        Udp.print("Object Temperature: ");
-//        Udp.print(objt);
-//        Udp.println("*C");
-//        Udp.print("Die Temperature: ");
-//        Udp.print(diet);
-//        Udp.println("*C\n");
-          Udp.println(CAN_Bus_PID_Data);  
+        Udp.println(data);  
         Udp.endPacket();
-        delay(4000);
-    }
+        delay(1);
 }
 
 void printWifiStatus() {
