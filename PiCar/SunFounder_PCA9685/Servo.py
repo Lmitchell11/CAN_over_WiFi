@@ -108,6 +108,17 @@ def test():
 		time.sleep(0.05)
 	print(i)
 
+
+#	a = Servo(1)
+#	a.setup()
+#	for i in range(180, 0, -5):
+#		print(-30)
+#		a.write(-30)
+#		time.sleep(0.1)
+
+
+	
+
 def install():
 	all_servo = [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]
 	for i in range(16):
