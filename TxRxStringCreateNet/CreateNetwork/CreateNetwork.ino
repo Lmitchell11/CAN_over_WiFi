@@ -35,16 +35,14 @@ char ReplyBuffer[] = "Ready for Transmission -----------------------------------
 
 
 void setup() {
-    Serial.begin(115200);   //UART USB/Console
-    Serial1.begin(115200);  //UART Tx/Rx Pins
-
+    Serial.begin(115200);
+    Serial1.begin(115200);
 
     // Start WiFi and create a network with wifi_name as the network name
     // with wifi_password as the password.
-    Serial.println("Creating network...");
     WiFi.beginNetwork(wifi_name, wifi_password);
     Udp.begin(localPort);
-    while(WiFi.localIP() == INADDR_NONE) {
+    while (WiFi.localIP() == INADDR_NONE) {
         delay(300);
     }
     Serial.println("Done\n");
@@ -87,10 +85,8 @@ void loop() {
 
             if (len > 0) packetBuffer[len] = 0;
             Serial.print("Contents: ");
-            Serial.println(packetBuffer);             //Printing contents plus newline to console/USB-Terminal
-            Serial1.println(packetBuffer);            //Basically this is just to print using UART from pins P03 and P04 on Microcontroller
-
-            
+            Serial.println(packetBuffer);
+            Serial1.println(packetBuffer);    
         }
     }
 }
